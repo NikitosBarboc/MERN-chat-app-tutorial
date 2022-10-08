@@ -1,8 +1,15 @@
 "use strict";
 const chats  = require('./data/data');
 const express = require('express');
-require('dotenv').config()
+const path = require('path')
+require('dotenv').config({path:'./.env'})
+const connectDB = require('./config/db')
+const colors = require('colors');
+
+connectDB()
+
 const app = express();
+
 
 app.get('/', (req, res) => {
     res.send('API is Running');
@@ -22,5 +29,5 @@ const PORT = process.env.PORT || 5000;
 
 app.get(
 app.listen(PORT, () => {
-    console.log(`Server run on ${PORT}....`);
+    console.log(`Server run on ${PORT}....`.blue.bold);
 }));

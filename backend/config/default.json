@@ -1,0 +1,5 @@
+{
+  "port": 5000,
+  "jwtSecret": "#superSecretKey!!!!!!!!!!!!QWER%^Y%3rjklfuckYoueds09(0sdse*dWdsdsAYEAYEAYEAYEA#YEEEEdwdwefdfewefefefefwefeff;w'fEewEEEEEEEEEEe@wEEEEEEEqEEewe3@@EEEJdkksdds(eunm,fsodisdjsdeioweklskdsekIjd",
+  "mongoUri": "mongodb+srv://root:root_root17d98t@cluster0.hh2umxe.mongodb.net/?retryWrites=true&w=majority"
+}
