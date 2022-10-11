@@ -1,7 +1,8 @@
 const asyncHandler = require('express-async-handler');
 const User = require('../Models/userModel');
 const generateToken = require("../config/generateToken");
-const bcrypt = require('bcryptjs')
+const bcrypt = require('bcryptjs');
+const Chat = require('../Models/chatModel');
 
 const registerUser =  async (req, res) => {
   try {
@@ -78,7 +79,6 @@ const authUser =  async (req, res) => {
     res.json({ success: false, msg: "Incorrect data"});
   }
 };
-// /api/user?search=diavk
 const allUsers = asyncHandler(async (req, res) => {
   const keyword = req.query.search;
   const searchParam = keyword ? {
@@ -88,16 +88,39 @@ const allUsers = asyncHandler(async (req, res) => {
     ]
   } : {};
 
-  const users = await User.find(searchParam);
-  console.log(users);
-  console.log(keyword);
-  // if (user) {
+  const users = await User.find(searchParam).find({ _id: { $ne: req.user._id } });
+  if (users) {
     res.status(200).json({ success: true ,data: users });
-  // } else {
-  //   res.status(404).json({ success: false, msg: "404 NOT FOUND" })
-  // }
-  
+    return
+  }
+   else {
+    res.status(404).json({ success: false, msg: "404 NOT FOUND" })
+  }
   return;
-})
+});
+const renameGroup = asyncHandler(async (req, res) => {
+  const { chatId, chatName } = req.body;
 
-module.exports = { registerUser, authUser, allUsers };
+  const updatedChat = await Chat.findByIdAndUpdate(
+    chatId,
+    {
+      chatName: chatName,
+    }, {
+      new: true,
+    }
+  )
+    .populate("users", "-password")
+    .populate("groupAdmin", "-password")
+
+  if (!updatedChat) {
+    return res.status(404).json({ success: false, msg: "404 not found "})
+  } else {
+    return res.json({ success: true, data: updatedChat })
+  }
+});
+function a() {
+  console.log("dddddddd")
+}
+
+module.exports = { registerUser, authUser, allUsers, renameGroup };
+
