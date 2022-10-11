@@ -101,12 +101,93 @@ const createGroupChat = asyncHandler(async (req, res) => {
       .populate("groupAdmin", "-password")
     
     res.status(200).json({ success: true, data: fullGroupChat });
-
-
   } catch(e) {
     console.log(e.message)
     res.status(500).json({ success: true, msg: "Server error" })
   }
 });
+const renameGroup = asyncHandler(async (req, res) => {
+  const { chatId, chatName } = req.body;
+  
+  if (!chatId || !chatName) {
+    return res.status(400).json({ success: false, msg: "please provide all props" })
+  }
 
-module.exports = { accessChat, fetchChats, createGroupChat };
+  const updatedChat = await Chat.findByIdAndUpdate(
+    chatId,
+    {
+      chatName: chatName,
+    },
+    {
+      new: true,
+    }
+  )
+    .populate("users", "-password")
+    .populate("groupAdmin", "-password");
+    console.log(updatedChat)
+  if (!updatedChat) {
+    return res.status(404).json({ success: false, msg: "Chat Not Found" })
+  } else {
+   return res.status(201).json({ success: true, data: updatedChat });
+  }
+});
+const addToGroup = asyncHandler(async (req, res) => {
+  const { chatId, userId } = req.body;
+
+  if (!chatId || !userId) {
+    return res.status(400).json({ success: false, msg: "please provide all props" })
+  }
+  const chat = await Chat.findById(chatId);
+
+  const updatedChat = await Chat.findByIdAndUpdate(
+    chatId,
+    {
+      $addToSet: { users: userId },
+    },
+    {
+      new: true,
+    }
+  )
+    .populate("users", "-password")
+    .populate("groupAdmin", "-password");
+
+  if (!updatedChat) {
+    res.status(404).json({ success: false, data: "Chat Not Found" });
+  } else {
+    res.json({ success: true ,data: updatedChat });
+  }
+});
+
+const removeFromGroup = asyncHandler(async (req, res) => {
+  const { chatId, userId } = req.body;
+
+  if (!chatId || !userId) {
+    return res.status(400).json({ success: false, msg: "please provide all props" })
+  }
+
+  const updatedChat = await Chat.findByIdAndUpdate(
+    chatId,
+    {
+      $pull: { users: userId },
+    }, 
+    { 
+      new: true
+    }
+  )
+    .populate("users", "-password")
+    .populate("groupAdmin", "-password")
+  if (!updatedChat) {
+    res.status(404).json({ success: false, msg: "404 not found" })
+  } else {
+    res.status(200).json({ success: true, data: updatedChat })
+  }
+})
+
+module.exports = {
+  accessChat,
+  fetchChats,
+  createGroupChat,
+  renameGroup,
+  addToGroup,
+  removeFromGroup
+};
